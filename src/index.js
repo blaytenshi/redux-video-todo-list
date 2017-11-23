@@ -33,6 +33,8 @@ const todos = (state = [], action) => {
       ];
     // Toggles Todos
     case 'TOGGLE_TODO':
+      // Iterate through every todo item in the array and runs 
+      // the todo() function and returns a new array
       return state.map(t => todo(t, action));
     default:
       return state;
