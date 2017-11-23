@@ -1,6 +1,6 @@
 import expect from 'expect';
 import deepFreeze from 'deep-freeze';
-import { createStore } from 'redux';
+import { createStore, combineReducers } from 'redux';
 
 // reducer structure:
 // todoApp
@@ -58,19 +58,29 @@ const visibilityFilter = (state = 'SHOW_ALL', action) => {
   }
 };
 
+// this is exactly the same as the code commented out below
+// using ES6 object literal shorthand notation
+// we shorten the names to equal its keys
+const todoApp = combineReducers({
+  // todos: todos
+  todos,
+  // visibilityFilter: visibilityFilter
+  visibilityFilter
+})
+
 // this is now the root reducer!
-const todoApp = (state = {}, action) => {
-  return {
-    todos: todos(
-      state.todos,
-      action
-    ),
-    visibilityFilter: visibilityFilter(
-      state.visibilityFilter,
-      action
-    )
-  };
-};
+// const todoApp = (state = {}, action) => {
+//   return {
+//     todos: todos(
+//       state.todos,
+//       action
+//     ),
+//     visibilityFilter: visibilityFilter(
+//       state.visibilityFilter,
+//       action
+//     )
+//   };
+// };
 
 // use imported createStore() and pass in root reducer.
 // this is now our root state store
