@@ -1,5 +1,5 @@
-import expect from 'expect';
-import deepFreeze from 'deep-freeze';
+import React, { Component } from 'react';
+import ReactDOM from 'react-dom';
 import { createStore, combineReducers } from 'redux';
 
 // reducer structure:
@@ -58,9 +58,7 @@ const visibilityFilter = (state = 'SHOW_ALL', action) => {
   }
 };
 
-// this is exactly the same as the code commented out below
-// using ES6 object literal shorthand notation
-// we shorten the names to equal its keys
+// root reducer
 const todoApp = combineReducers({
   // todos: todos
   todos,
@@ -68,68 +66,54 @@ const todoApp = combineReducers({
   visibilityFilter
 })
 
-// this is now the root reducer!
-// const todoApp = (state = {}, action) => {
-//   return {
-//     todos: todos(
-//       state.todos,
-//       action
-//     ),
-//     visibilityFilter: visibilityFilter(
-//       state.visibilityFilter,
-//       action
-//     )
-//   };
-// };
-
 // use imported createStore() and pass in root reducer.
 // this is now our root state store
 const store = createStore(todoApp);
 
-// dispatching actions to the store to make changes
-// to state and logging them out
-console.log('Initial State:');
-console.log(store.getState());
-console.log('--------------');
+let nextTodoId = 0;
 
-console.log('Dispatching ADD_TODO');
-store.dispatch({
-  type: 'ADD_TODO',
-  id: 0,
-  text: 'Learn Redux'
-});
+class TodoApp extends Component {
+  render() {
+    return(
+      <div>
+        <input ref={node => {
+          this.input = node;
+        }} />
+        <button onClick={() => {
+          
+          store.dispatch(
+            {
+              type: 'ADD_TODO',
+              text: this.input.value,
+              id: nextTodoId++
+            }
+          );
 
-console.log('Current State:');
-console.log(store.getState());
-console.log('--------------');
+          this.input.value='';
 
-console.log('Dispatching ADD_TODO');
-store.dispatch({
-  type: 'ADD_TODO',
-  id: 1,
-  text: 'Go Shopping'
-});
+        }}>
+        Add Todo
+        </button>
+        <ul>
+          {this.props.todos.map(todo => 
+            <li key={todo.id}>
+              {todo.text}
+            </li>
+          )}
+        </ul>
+      </div>
+    );
+  }
+}
 
-console.log('Current State:');
-console.log(store.getState());
-console.log('--------------');
+const render = () => {
+  ReactDOM.render(
+    <TodoApp 
+      todos={store.getState().todos}
+    />,
+    document.getElementById('root')
+  );
+};
 
-console.log('Dispatching TOGGLE_TODO');
-store.dispatch({
-  type: 'TOGGLE_TODO',
-  id: 0
-});
-
-console.log('Current State:');
-console.log(store.getState());
-console.log('--------------');
-
-console.log('Dispatching SET_VISIBILITY_FILTER');
-store.dispatch({
-  type: 'SET_VISIBILITY_FILTER',
-  filter: 'SHOW_COMPLETED'
-});
-
-console.log('Current State:');
-console.log(store.getState());
-console.log('--------------');
+store.subscribe(render);
+render();
