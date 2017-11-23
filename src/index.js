@@ -1,5 +1,12 @@
 import expect from 'expect';
 import deepFreeze from 'deep-freeze';
+import { createStore } from 'redux';
+
+// reducer structure:
+// todoApp
+// - todos
+//   - todo
+// - visibilityFilter
 
 const todo = (state, action) => {
   switch(action.type) {
@@ -22,7 +29,7 @@ const todo = (state, action) => {
   }
 }
 
-
+// this was old root reducer!
 const todos = (state = [], action) => {
   switch (action.type) {
     // Adds Todos
@@ -41,65 +48,78 @@ const todos = (state = [], action) => {
   }
 };
 
-const testAddTodo = () => {
-  const stateBefore = [];
-  const action = {
-    type: "ADD_TODO",
-    id: 0,
-    text: "Learn Redux"
-  };
-  const stateAfter = [
-    {
-      id: 0,
-      text: "Learn Redux",
-      completed: false
-    }
-  ];
-
-  deepFreeze(stateBefore);
-  deepFreeze(action);
-
-  expect(todos(stateBefore, action)).toEqual(stateAfter);
+// visibility filter reducer
+const visibilityFilter = (state = 'SHOW_ALL', action) => {
+  switch(action.type) {
+    case 'SET_VISIBILITY_FILTER':
+      return action.filter;
+    default:
+      return state;
+  }
 };
 
-const testToggleTodo = () => {
-  const stateBefore = [
-    {
-      id: 0,
-      text: 'Learn Redux',
-      completed: false
-    },
-    {
-      id: 1,
-      text: 'Go Shopping',
-      completed: false
-    }
-  ];
-  const action = {
-    type: 'TOGGLE_TODO',
-    id: 1
+// this is now the root reducer!
+const todoApp = (state = {}, action) => {
+  return {
+    todos: todos(
+      state.todos,
+      action
+    ),
+    visibilityFilter: visibilityFilter(
+      state.visibilityFilter,
+      action
+    )
   };
-  const stateAfter = [
-    {
-      id: 0,
-      text: 'Learn Redux',
-      completed: false
-    },
-    {
-      id: 1,
-      text: 'Go Shopping',
-      completed: true
-    }
-  ];
+};
 
-  deepFreeze(stateBefore);
-  deepFreeze(action);
+// use imported createStore() and pass in root reducer.
+// this is now our root state store
+const store = createStore(todoApp);
 
-  expect(
-    todos(stateBefore, action)
-  ).toEqual(stateAfter);
-}
+// dispatching actions to the store to make changes
+// to state and logging them out
+console.log('Initial State:');
+console.log(store.getState());
+console.log('--------------');
 
-testAddTodo();
-testToggleTodo();
-console.log("All tests passed");
+console.log('Dispatching ADD_TODO');
+store.dispatch({
+  type: 'ADD_TODO',
+  id: 0,
+  text: 'Learn Redux'
+});
+
+console.log('Current State:');
+console.log(store.getState());
+console.log('--------------');
+
+console.log('Dispatching ADD_TODO');
+store.dispatch({
+  type: 'ADD_TODO',
+  id: 1,
+  text: 'Go Shopping'
+});
+
+console.log('Current State:');
+console.log(store.getState());
+console.log('--------------');
+
+console.log('Dispatching TOGGLE_TODO');
+store.dispatch({
+  type: 'TOGGLE_TODO',
+  id: 0
+});
+
+console.log('Current State:');
+console.log(store.getState());
+console.log('--------------');
+
+console.log('Dispatching SET_VISIBILITY_FILTER');
+store.dispatch({
+  type: 'SET_VISIBILITY_FILTER',
+  filter: 'SHOW_COMPLETED'
+});
+
+console.log('Current State:');
+console.log(store.getState());
+console.log('--------------');
