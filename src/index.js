@@ -66,10 +66,6 @@ const todoApp = combineReducers({
   visibilityFilter
 })
 
-// use imported createStore() and pass in root reducer.
-// this is now our root state store
-const store = createStore(todoApp);
-
 // Link Component
 const Link = ({ active, children, onClick }) => {
   if (active) {
@@ -91,6 +87,7 @@ const Link = ({ active, children, onClick }) => {
 // FilterLink Component
 class FilterLink extends Component {
   componentDidMount() {
+    const { store } = this.props;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -103,6 +100,7 @@ class FilterLink extends Component {
   render() {
     
     const props = this.props;
+    const { store } = props;
     const state = store.getState();
 
     return (
@@ -175,24 +173,27 @@ const AddTodo = () => {
   )
 }
 
-const Footer = () => (
+const Footer = ({ store }) => (
   <p>
     Show:
     {' '}
     <FilterLink
       filter='SHOW_ALL'
+      store={store}
     >
       All
     </FilterLink>
     {', '}
     <FilterLink
       filter='SHOW_ACTIVE'
+      store={store}
     >
       Active
     </FilterLink>
     {', '}
     <FilterLink
       filter='SHOW_COMPLETED'
+      store={store}
     >
       Completed
     </FilterLink>
@@ -217,6 +218,7 @@ const getVisibleTodos = (todos, filter) => {
 class VisibleTodoList extends Component {
 
   componentDidMount() {
+    const { store } = this.props;
     this.unsubscribe = store.subscribe(() =>
       this.forceUpdate()
     );
@@ -228,6 +230,7 @@ class VisibleTodoList extends Component {
 
   render() {
     const props = this.props;
+    const { store } = props;
     const state = store.getState();
 
     return (
@@ -252,15 +255,16 @@ class VisibleTodoList extends Component {
 let nextTodoId = 0;
 
 // refactored the entire app into just a single expression
-const TodoApp = () => (
+const TodoApp = ({store}) => (
   <div>
-    <AddTodo />
-    <VisibleTodoList />
-    <Footer />
+    <AddTodo store={store} />
+    <VisibleTodoList store={store} />
+    <Footer store={store} />
   </div>
 )
 
+// Store is now injected into all components for ease of access to store and testing
 ReactDOM.render(
-  <TodoApp />,
+  <TodoApp store={createStore(todoApp)} />,
   document.getElementById('root')
 );
