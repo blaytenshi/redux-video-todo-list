@@ -1,7 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
-import { Provider } from 'react-redux'
+import { Provider, connect } from 'react-redux'
 import { createStore, combineReducers } from 'redux';
 
 // reducer structure:
@@ -219,45 +219,29 @@ const getVisibleTodos = (todos, filter) => {
   }
 }
 
-class VisibleTodoList extends Component {
-
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() =>
-      this.forceUpdate()
-    );
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  render() {
-    const props = this.props;
-    const { store } = this.context;
-    const state = store.getState();
-
-    return (
-      <TodoList
-        todos={
-          getVisibleTodos(
-            state.todos,
-            state.visibilityFilter
-          )
-        }
-        onTodoClick={id =>
-          store.dispatch({
-            type: 'TOGGLE_TODO',
-            id
-          })
-        }
-      />
-    );
+const mapStateToProps = (state) => {
+  return {
+    todos: getVisibleTodos(
+      state.todos,
+      state.visibilityFilter
+    )
   }
 }
-VisibleTodoList.contextTypes = {
-  store: PropTypes.object
-};
+
+const mapDispatchToProps = (dispatch) => {
+  return {
+    onTodoClick: (id) => {
+      dispatch({
+        type: 'TOGGLE_TODO',
+        id
+      })
+    }
+  }
+}
+
+const VisibleTodoList = connect(
+  mapStateToProps, mapDispatchToProps
+)(TodoList)
 
 let nextTodoId = 0;
 
