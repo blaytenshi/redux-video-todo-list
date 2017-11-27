@@ -142,20 +142,8 @@ const Todo = ({ onClick, completed, text }) => (
   </li>
 );
 
-// 'Presentational TodoList Component. It 'contains' the Todo Components.
-const TodoList = ({ todos, onTodoClick }) => (
-  <ul>
-    {todos.map(todo =>
-      <Todo
-        key={todo.id}
-        {...todo}
-        onClick={() => onTodoClick(todo.id)}
-      />
-    )}
-  </ul>
-);
 
-const AddTodo = (props, { store }) => {
+let AddTodo = ({ dispatch }) => {
   let input;
 
   return (
@@ -164,7 +152,7 @@ const AddTodo = (props, { store }) => {
         input = node;
       }} />
       <button onClick={() => {
-        store.dispatch({
+        dispatch({
           type: 'ADD_TODO',
           id: nextTodoId++,
           text: input.value
@@ -176,9 +164,13 @@ const AddTodo = (props, { store }) => {
     </div>
   )
 }
-AddTodo.contextTypes = {
-  store: PropTypes.object
-};
+AddTodo = connect(
+  // no need to subscribe to the store because it gets no changes from the store
+  null,
+  dispatch => {
+    return { dispatch };
+  }
+)(AddTodo);
 
 const Footer = () => (
   <p>
@@ -204,6 +196,19 @@ const Footer = () => (
   </p>
 )
 
+// 'Presentational TodoList Component. It 'contains' the Todo Components.
+const TodoList = ({ todos, onTodoClick }) => (
+  <ul>
+    {todos.map(todo =>
+      <Todo
+        key={todo.id}
+        {...todo}
+        onClick={() => onTodoClick(todo.id)}
+      />
+    )}
+  </ul>
+);
+
 const getVisibleTodos = (todos, filter) => {
   switch (filter) {
     case 'SHOW_ALL':
@@ -218,7 +223,6 @@ const getVisibleTodos = (todos, filter) => {
       );
   }
 }
-
 const mapStateToProps = (state) => {
   return {
     todos: getVisibleTodos(
@@ -227,7 +231,6 @@ const mapStateToProps = (state) => {
     )
   }
 }
-
 const mapDispatchToProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
@@ -238,10 +241,9 @@ const mapDispatchToProps = (dispatch) => {
     }
   }
 }
-
 const VisibleTodoList = connect(
   mapStateToProps, mapDispatchToProps
-)(TodoList)
+)(TodoList);
 
 let nextTodoId = 0;
 
