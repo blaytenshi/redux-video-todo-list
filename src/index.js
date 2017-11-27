@@ -164,13 +164,9 @@ let AddTodo = ({ dispatch }) => {
     </div>
   )
 }
-AddTodo = connect(
-  // no need to subscribe to the store because it gets no changes from the store
-  null,
-  dispatch => {
-    return { dispatch };
-  }
-)(AddTodo);
+// no need to subscribe to the store because it gets no changes from the store
+// calling connect with no arguments will simply pass the dispatch to props of the AddTodo component
+AddTodo = connect()(AddTodo);
 
 const Footer = () => (
   <p>
