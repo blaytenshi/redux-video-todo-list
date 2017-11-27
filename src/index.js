@@ -86,45 +86,30 @@ const Link = ({ active, children, onClick }) => {
   )
 }
 
-// FilterLink Component
-class FilterLink extends Component {
-  componentDidMount() {
-    const { store } = this.context;
-    this.unsubscribe = store.subscribe(() =>
-      this.forceUpdate()
-    );
-  }
-
-  componentWillUnmount() {
-    this.unsubscribe();
-  }
-
-  render() {
-
-    const props = this.props;
-    const { store } = this.context;
-    const state = store.getState();
-
-    return (
-      <Link
-        active={
-          props.filter === state.visibilityFilter
-        }
-        onClick={() =>
-          store.dispatch({
-            type: 'SET_VISIBILITY_FILTER',
-            filter: props.filter
-          })
-        }
-      >
-        {props.children}
-      </Link>
-    )
+// New FilterLink Component
+const mapStateToLinkProps = (
+  state, 
+  ownProps
+) => { // this is props from the parent component not the child component
+  return {
+    active: ownProps.filter ===
+    state.visibilityFilter
   }
 }
-FilterLink.contextTypes = {
-  store: PropTypes.object
-};
+const mapDispatchToLinkProps = (dispatch, ownProps) => {
+  return {
+    onClick: () => {
+      dispatch({
+        type: 'SET_VISIBILITY_FILTER',
+        filter: ownProps.filter
+      })
+    }
+  }
+}
+const FilterLink = connect(
+  mapStateToLinkProps,
+  mapDispatchToLinkProps
+)(Link);
 
 // 'Presentational' Todo Component
 const Todo = ({ onClick, completed, text }) => (
@@ -141,7 +126,6 @@ const Todo = ({ onClick, completed, text }) => (
     {text}
   </li>
 );
-
 
 let AddTodo = ({ dispatch }) => {
   let input;
@@ -219,7 +203,7 @@ const getVisibleTodos = (todos, filter) => {
       );
   }
 }
-const mapStateToProps = (state) => {
+const mapStateToTodoListProps = (state) => {
   return {
     todos: getVisibleTodos(
       state.todos,
@@ -227,7 +211,7 @@ const mapStateToProps = (state) => {
     )
   }
 }
-const mapDispatchToProps = (dispatch) => {
+const mapDispatchToTodoListProps = (dispatch) => {
   return {
     onTodoClick: (id) => {
       dispatch({
@@ -238,7 +222,7 @@ const mapDispatchToProps = (dispatch) => {
   }
 }
 const VisibleTodoList = connect(
-  mapStateToProps, mapDispatchToProps
+  mapStateToTodoListProps, mapDispatchToTodoListProps
 )(TodoList);
 
 let nextTodoId = 0;
