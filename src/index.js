@@ -1,6 +1,7 @@
 import React, { Component } from 'react';
 import PropTypes from 'prop-types';
 import ReactDOM from 'react-dom';
+import { Provider } from 'react-redux'
 import { createStore, combineReducers } from 'redux';
 
 // reducer structure:
@@ -10,7 +11,7 @@ import { createStore, combineReducers } from 'redux';
 // - visibilityFilter
 
 const todo = (state, action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'ADD_TODO':
       return {
         id: action.id,
@@ -51,7 +52,7 @@ const todos = (state = [], action) => {
 
 // visibility filter reducer
 const visibilityFilter = (state = 'SHOW_ALL', action) => {
-  switch(action.type) {
+  switch (action.type) {
     case 'SET_VISIBILITY_FILTER':
       return action.filter;
     default:
@@ -73,7 +74,7 @@ const Link = ({ active, children, onClick }) => {
     return <span>{children}</span>
   }
   return (
-    <a 
+    <a
       href="#"
       onClick={e => {
         e.preventDefault();
@@ -99,7 +100,7 @@ class FilterLink extends Component {
   }
 
   render() {
-    
+
     const props = this.props;
     const { store } = this.context;
     const state = store.getState();
@@ -109,7 +110,7 @@ class FilterLink extends Component {
         active={
           props.filter === state.visibilityFilter
         }
-        onClick={() => 
+        onClick={() =>
           store.dispatch({
             type: 'SET_VISIBILITY_FILTER',
             filter: props.filter
@@ -204,7 +205,7 @@ const Footer = () => (
 )
 
 const getVisibleTodos = (todos, filter) => {
-  switch(filter) {
+  switch (filter) {
     case 'SHOW_ALL':
       return todos;
     case 'SHOW_COMPLETED':
@@ -244,7 +245,7 @@ class VisibleTodoList extends Component {
             state.visibilityFilter
           )
         }
-        onTodoClick={id => 
+        onTodoClick={id =>
           store.dispatch({
             type: 'TOGGLE_TODO',
             id
@@ -269,25 +270,10 @@ const TodoApp = () => (
   </div>
 )
 
-class Provider extends Component {
-  getChildContext() {
-    return {
-      store: this.props.store
-    };
-  }
-
-  render() {
-    return this.props.children
-  };
-}
-Provider.childContextTypes = {
-  store: PropTypes.object
-};
-
 // Store is now injected into all components for ease of access to store and testing
 ReactDOM.render(
-  <Provider store={createStore(todoApp)}> 
-    <TodoApp  />
+  <Provider store={createStore(todoApp)}>
+    <TodoApp />
   </Provider>,
   document.getElementById('root')
 );
